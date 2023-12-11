@@ -1,0 +1,26 @@
+{
+    "name": "@pl_and_ts/y86compiler",
+    "description": "Library for y86 ISA compiler",
+    "version": "0.0.1",
+    "author": "Ozelot Vanilla",
+    "license": "LGPL-3.0-only",
+    "files": [
+        "es"
+    ],
+    "type": "module",
+    "main": "es/index.js",
+    "types": "es/index.d.ts",
+    "exports": {
+        ".": "./es/index.js"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.11",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.1",
+        "typescript": "^5.3.3"
+    },
+    "scripts": {
+        "tsc": "tsc --noEmit",
+        "test": "jest --config jestconfig.json"
+    }
+}
