@@ -187,7 +187,7 @@ function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseS
     while (index < text.length)
     {
         // Skip white spaces (but not new line, because new line separates statements)
-        while ([" ", "\t", "\u0020"].includes(text[index])) { index++ }
+        while ([" ", "\t", "\u0020"].includes(text[index])) { index++; pos_col++ }
 
         const char_start = text[index]
 
