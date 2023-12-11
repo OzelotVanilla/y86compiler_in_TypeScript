@@ -21,6 +21,6 @@
     },
     "scripts": {
         "tsc": "tsc --noEmit",
-        "test": "jest --config jestconfig.json"
+        "test": "jest --config jestconfig.json --silent=false"
     }
 }
