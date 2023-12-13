@@ -1,6 +1,9 @@
 export class Generator
 {
-    public static operator_to_bin = new Map<string, number>([
+    /**
+     * The operator that is supported in the original Y86.
+     */
+    public static readonly operator_to_bin = new Map<string, number>([
         ["halt", 0x00], ["nop", 0x10],
         ["rrmovq", 0x20], ["cmovle", 0x21], ["cmovl", 0x22], ["cmove", 0x23], ["cmovne", 0x24], ["cmovge", 0x25], ["cmovg", 0x26],
         ["irmovq", 0x30], ["rmmovq", 0x40], ["mrmovq", 0x50],

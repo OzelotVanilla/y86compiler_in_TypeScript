@@ -4,22 +4,22 @@ import { TokenType } from "./TokenType";
 
 export class Tokeniser
 {
-    public static punctuation_to_token = new Map<string, TokenType>([
+    public static readonly punctuation_to_token = new Map<string, TokenType>([
         ["(", TokenType.left_paren], [")", TokenType.right_paren],
         [",", TokenType.comma], [":", TokenType.colon]
     ])
 
-    public static available_punctuation = [...Tokeniser.punctuation_to_token.keys()]
+    public static readonly available_punctuation = [...Tokeniser.punctuation_to_token.keys()]
 
-    public static quasi_name_prefix_to_token = new Map<string, TokenType>([
+    public static readonly quasi_name_prefix_to_token = new Map<string, TokenType>([
         ["%", TokenType.register], [".", TokenType.directive]
     ])
 
-    public static available_quasi_name_prefixes = [...Tokeniser.quasi_name_prefix_to_token.keys()]
+    public static readonly available_quasi_name_prefixes = [...Tokeniser.quasi_name_prefix_to_token.keys()]
 
-    public static available_operator = [...Generator.operator_to_bin.keys()]
+    public static readonly available_operator = [...Generator.operator_to_bin.keys()]
 
-    public static valid_number_checker = /\-?(?:0[xb])?\d+/
+    public static readonly valid_number_checker = /^\-?(?:0[xb])?\d+$/
 
     private args: Tokeniser_Args
 
