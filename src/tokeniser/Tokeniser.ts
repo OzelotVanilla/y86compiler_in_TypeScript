@@ -278,9 +278,14 @@ function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseS
     return Result.createOk({ tokens: tokens_parsed, time_consumed: (stat__end_time - stat__start_time) / 1000 })
 }
 
-function getTokensDisplay(tokens: Token[] | null | undefined, use_colour: boolean = false)
+export function getTokensDisplay(tokens: Token[] | null | undefined, use_colour: boolean = false)
 {
     if (tokens == null || tokens == undefined) { throw TypeError(`Cannot get display text of ${tokens}.`) }
+
+    const max_length_of_token_type =
+        (Object.values(TokenType) as string[]).map(s => s.length).reduce((a, b) => a > b ? a : b)
+    const max_length_of_content =
+        tokens.map(t => t.content.toString().length).reduce((a, b) => a > b ? a : b)
 
     let display_texts: string[] = []
     for (const token of tokens)
@@ -293,7 +298,9 @@ function getTokensDisplay(tokens: Token[] | null | undefined, use_colour: boolea
             else if (token.content == "\r\n") { new_line_text = "\\r\\n" }
             else
             {
-                throw TypeError(`Content "${[...token.content].map((_, pos) => String.prototype.codePointAt(pos))}"`)
+                throw TypeError(
+                    `Content "${[...token.content].map((_, pos) => String.prototype.codePointAt(pos))}"`
+                )
             }
 
             const text = use_colour
@@ -304,11 +311,12 @@ function getTokensDisplay(tokens: Token[] | null | undefined, use_colour: boolea
         }
         else
         {
+            const token_type_text = token.type + " ".repeat(max_length_of_token_type - token.type.length)
             const text = use_colour
-                ? `\x1b[1m\x1b[38;2;137;91;138m${token.type}\x1b[0m: `
+                ? `\x1b[1m\x1b[38;2;137;91;138m${token_type_text}\x1b[38;2;163;163;162m:\x1b[0m  `
                 + `\x1b[38;2;114;109;64m${token.content}\x1b[0m `
                 + `\x1b[38;2;163;163;162m(row: ${token.position_row}, col: ${token.position_col})\x1b[0m`
-                : `${token.type}: ${token.content} (row: ${token.position_row}, col: ${token.position_col})`
+                : `${token_type_text}:  ${token.content} (row: ${token.position_row}, col: ${token.position_col})`
 
             display_texts.push(text)
         }
