@@ -165,17 +165,15 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
     let stat__start_time = Date.now()
 
     /** Inside function which add a number to token list (and move every index forward), or return an error. */
-    function processOnNumber()
+    function processOnNumber(): Result<Token, TokeniseFailResult>
     {
         const content_got = Tokeniser.readNumberGreedly(text, index)
         if (Tokeniser.valid_number_checker.test(content_got)) // Got a valid number.
         {
-            tokens_parsed.push({
+            return Result.createOk({
                 type: TokenType.constant, content: "$" + content_got,
                 position_row: pos_row, position_col: pos_col
             })
-            index += content_got.length
-            pos_col += content_got.length
         }
         else // Should give bad result here.
         {
@@ -224,7 +222,18 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
             // If it is a number constant (actually y86 only has number for constant)
             if (Tokeniser.willBeNumber(text, index))
             {
-                processOnNumber()
+                const read_number_result = processOnNumber()
+                if (read_number_result.isOk())
+                {
+                    const token_got = read_number_result.unwarpOk()
+                    tokens_parsed.push(token_got)
+                    index += (token_got.content as string).length
+                    pos_col += (token_got.content as string).length
+                }
+                else
+                {
+                    return Result.createErr(read_number_result.unwarpErr())
+                }
             }
             else
             {
@@ -236,7 +245,18 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
         // If it is a number.
         else if (Tokeniser.willBeNumber(text, index))
         {
-            processOnNumber()
+            const read_number_result = processOnNumber()
+            if (read_number_result.isOk())
+            {
+                const token_got = read_number_result.unwarpOk()
+                tokens_parsed.push(token_got)
+                index += (token_got.content as string).length
+                pos_col += (token_got.content as string).length
+            }
+            else
+            {
+                return Result.createErr(read_number_result.unwarpErr())
+            }
         }
         // If it is a punctuation.
         else if (Tokeniser.available_punctuation.includes(char_start))
