@@ -153,7 +153,7 @@ export class Tokeniser
 
 export type Tokeniser_Args = {}
 
-function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseSuccessResult, TokeniseFailResult>
+export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseSuccessResult, TokeniseFailResult>
 {
     /** Index for `getTokenFromCode` to get the `char_start`. */
     let index = 0
@@ -172,7 +172,7 @@ function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseS
         {
             tokens_parsed.push({
                 type: TokenType.constant, content: "$" + content_got,
-                position_col: pos_col, position_row: pos_row
+                position_row: pos_row, position_col: pos_col
             })
             index += content_got.length
             pos_col += content_got.length
@@ -210,7 +210,7 @@ function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseS
                         ? TokenType.operator
                         : TokenType.identifier,
                 content: is_possible_a_quasi_name ? char_start + content_got : content_got,
-                position_col: pos_col, position_row: pos_row
+                position_row: pos_row, position_col: pos_col
             }
             tokens_parsed.push(token)
             index += content_got.length
@@ -243,7 +243,7 @@ function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseS
         {
             tokens_parsed.push({
                 type: Tokeniser.punctuation_to_token.get(char_start)!,
-                content: char_start, position_col: pos_col, position_row: pos_row
+                content: char_start, position_row: pos_row, position_col: pos_col,
             })
             index++
             pos_col++
@@ -252,7 +252,7 @@ function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseS
         else if (Tokeniser.willBeLineBreak(text, index))
         {
             const content = text[index + 1] == "\n" ? "\r\n" : text[index]
-            tokens_parsed.push({ type: TokenType.new_line, content, position_col: pos_col, position_row: pos_row })
+            tokens_parsed.push({ type: TokenType.new_line, content, position_row: pos_row, position_col: pos_col })
             index += content.length
             pos_row++
             pos_col = 0
@@ -332,8 +332,8 @@ export type Token = ({
     type: TokenType.numeric
     content: number
 }) & {
-    position_col: number
     position_row: number
+    position_col: number
 }
 
 export enum ParseStatus
