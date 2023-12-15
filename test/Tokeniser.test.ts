@@ -1,4 +1,4 @@
-import { Tokeniser } from "../src/tokeniser/Tokeniser"
+import { Tokeniser, TokeniseFailResult } from "../src/tokeniser/Tokeniser"
 
 test(
     "Check `Tokeniser.readLetterGreedly` correctness of text read",
@@ -37,5 +37,31 @@ test(
         // Mal formed string `-0x`
         expect(Tokeniser.readNumberGreedly("-0x", 0)).toBe("-0x")
         expect(Tokeniser.readNumberGreedly("-0xp", 0)).toBe("-0x")
+    }
+)
+
+test(
+    "Check Tokeniser works or not",
+    function ()
+    {
+        let parser_1 = new Tokeniser()
+        let parser_1_result = parser_1.parse("addq %rax, %rbx\nsubq %rbx, %rcx\nhalt")
+        expect(parser_1_result.unwarpOk().tokens).toEqual([
+            { type: 'operator', content: 'addq', position_col: 0, position_row: 0 },
+            { type: 'register', content: '%rax', position_col: 5, position_row: 0 },
+            { type: 'comma', content: ',', position_col: 8, position_row: 0 },
+            { type: 'register', content: '%rbx', position_col: 10, position_row: 0 },
+            { type: 'new_line', content: '\n', position_col: 13, position_row: 0 },
+            { type: 'operator', content: 'subq', position_col: 0, position_row: 1 },
+            { type: "register", content: "%rbx", position_col: 5, position_row: 1 },
+            { type: 'comma', content: ',', position_col: 8, position_row: 1 },
+            { type: 'register', content: '%rcx', position_col: 10, position_row: 1 },
+            { type: 'new_line', content: '\n', position_col: 13, position_row: 1 },
+            { type: 'operator', content: 'halt', position_col: 0, position_row: 2 }
+        ])
+
+        let parser_2 = new Tokeniser()
+        let parser_2_result = parser_2.parse("irmovq $0x")
+        expect(parser_2_result.isOk()).toBe(false)
     }
 )
