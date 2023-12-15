@@ -26,7 +26,7 @@ export class Result<OkType, ErrType>
 
     public unwarpErr(): ErrType
     {
-        if (this.isOk()) { throw TypeError(`The result is OkS.`) }
+        if (this.isOk()) { throw TypeError(`The result is Ok.`) }
 
         return this.value as ErrType
     }

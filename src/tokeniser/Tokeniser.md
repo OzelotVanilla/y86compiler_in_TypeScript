@@ -1,4 +1,4 @@
-Step of Tokenise
+Tokeniser
 ====
 
 Available Type of Token
@@ -18,7 +18,8 @@ Available Type of Token
 | `colon`       | `/\:/`                           | Just literally a colon.                                 |
 | `new_line`    | `\r`, `\n`, or `\r\n`            | Just literally a new line.                              |
 
-## Process flow
+Step of Tokenisation
+----
 
 1. Check if it is a ordinary name (identifier) (check if starts with a letter), and, if it is a operator
 2. Otherwise, if it is a register name (check if starts with a `%`)
