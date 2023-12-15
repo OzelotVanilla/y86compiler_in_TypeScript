@@ -165,15 +165,12 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
     let stat__start_time = Date.now()
 
     /** Inside function which add a number to token list (and move every index forward), or return an error. */
-    function processOnNumber(): Result<Token, TokeniseFailResult>
+    function processOnNumber(): Result<string, TokeniseFailResult>
     {
         const content_got = Tokeniser.readNumberGreedly(text, index)
         if (Tokeniser.valid_number_checker.test(content_got)) // Got a valid number.
         {
-            return Result.createOk({
-                type: TokenType.constant, content: "$" + content_got,
-                position_row: pos_row, position_col: pos_col
-            })
+            return Result.createOk(content_got)
         }
         else // Should give bad result here.
         {
@@ -225,10 +222,13 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
                 const read_number_result = processOnNumber()
                 if (read_number_result.isOk())
                 {
-                    const token_got = read_number_result.unwarpOk()
-                    tokens_parsed.push(token_got)
-                    index += (token_got.content as string).length
-                    pos_col += (token_got.content as string).length
+                    const content = read_number_result.unwarpOk()
+                    tokens_parsed.push({
+                        type: TokenType.constant, content: `\$${content}`,
+                        position_row: pos_row, position_col: pos_col
+                    })
+                    index += content.length
+                    pos_col += content.length
                 }
                 else
                 {
@@ -248,10 +248,13 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
             const read_number_result = processOnNumber()
             if (read_number_result.isOk())
             {
-                const token_got = read_number_result.unwarpOk()
-                tokens_parsed.push(token_got)
-                index += (token_got.content as string).length
-                pos_col += (token_got.content as string).length
+                const content = read_number_result.unwarpOk()
+                tokens_parsed.push({
+                    type: TokenType.numeric, content,
+                    position_row: pos_row, position_col: pos_col
+                })
+                index += content.length
+                pos_col += content.length
             }
             else
             {
@@ -345,13 +348,9 @@ export function getTokensDisplay(tokens: Token[] | null | undefined, use_colour:
     return display_texts.join("\n")
 }
 
-export type Token = ({
+export type Token = {
     type: TokenType
     content: string
-} | {
-    type: TokenType.numeric
-    content: number
-}) & {
     position_row: number
     position_col: number
 }
