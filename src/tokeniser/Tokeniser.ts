@@ -1,5 +1,6 @@
 import { Generator } from "../generator/Generator";
 import { Result } from "../util/Result";
+import { ParseFailResult } from "../util/util_type";
 import { TokenType } from "./TokenType";
 
 export class Tokeniser
@@ -174,8 +175,8 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
         }
         else // Should give bad result here.
         {
-            const detail = `The number got "${content_got}" is malformed.`
-            return Result.createErr({ at_col: pos_col, at_row: pos_row, detail })
+            const reason = `The number got "${content_got}" is malformed.`
+            return Result.createErr({ at_col: pos_col, at_row: pos_row, reason })
         }
     }
 
@@ -237,9 +238,9 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
             }
             else
             {
-                const detail =
+                const reason =
                     `Malformed constant, cannot follow "$" with something like ${text.slice(index, index + 5)}.`
-                return Result.createErr({ at_col: pos_col, at_row: pos_row, detail })
+                return Result.createErr({ at_col: pos_col, at_row: pos_row, reason })
             }
         }
         // If it is a number.
@@ -290,9 +291,9 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
         // Otherwise, something strange happens.
         else
         {
-            const detail = `Something unexpected happen. The char or the content after cannot be parsed. `
+            const reason = `Something unexpected happen. The char or the content after cannot be parsed. `
                 + `The content is (10 char after):\n${text.slice(index, index + 10)}`
-            return Result.createErr({ at_col: pos_col, at_row: pos_row, detail })
+            return Result.createErr({ at_col: pos_col, at_row: pos_row, reason })
         }
     }
 
@@ -370,11 +371,4 @@ export type TokeniseSuccessResult = {
     time_consumed: number
 }
 
-export type TokeniseFailResult = {
-    /** Row position for the error. */
-    at_row: number
-    /** Column position for the error. */
-    at_col: number
-    /** Descriptive message of the error. */
-    detail: string
-}
+export type TokeniseFailResult = ParseFailResult & {}
