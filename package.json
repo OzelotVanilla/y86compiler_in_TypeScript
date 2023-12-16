@@ -5,13 +5,13 @@
     "author": "Ozelot Vanilla",
     "license": "LGPL-3.0-only",
     "files": [
-        "es"
+        "dist"
     ],
     "type": "module",
-    "main": "dist/index.js",
+    "main": "dist/index.cjs",
     "types": "dist/index.d.ts",
     "exports": {
-        ".": "./es/index.js"
+        ".": "./dist/index.js"
     },
     "devDependencies": {
         "@types/jest": "^29.5.11",
