@@ -13,6 +13,20 @@ export class Result<OkType, ErrType>
         return new Result(false, value)
     }
 
+    public static fromOk<ValueType>(result: Result<ValueType, any>)
+    {
+        if (result.isErr()) { throw TypeError(`The result is Err.`) }
+
+        return result as Result<ValueType, any>
+    }
+
+    public static fromErr<ValueType>(result: Result<any, ValueType>)
+    {
+        if (result.isOk()) { throw TypeError(`The result is Ok.`) }
+
+        return result as Result<any, ValueType>
+    }
+
     public isOk(): boolean { return this.whether_ok }
 
     public isErr(): boolean { return !this.whether_ok }
