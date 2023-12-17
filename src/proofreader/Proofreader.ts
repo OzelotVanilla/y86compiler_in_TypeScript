@@ -28,7 +28,7 @@ export class Proofreader
     }
 }
 
-function getProofreadedAST(ast: AST): Result<AnnotatedAST, ProofreadError>
+export function getProofreadedAST(ast: AST): Result<AnnotatedAST, ProofreadError>
 {
     let annotated_ast = AnnotatedAST.fromAST(ast)
     const stmt_nodes = annotated_ast.stmt_nodes

@@ -33,6 +33,8 @@ export class AnnotatedAST extends AST
             })
         }
 
+        symbol_reference.defined_at = defined_at
+
         return Result.createOk(undefined)
     }
 
@@ -97,6 +99,8 @@ export class AnnotatedAST extends AST
                 operand.location = label_defined_location
             }
         }
+
+        return Result.createOk(undefined)
     }
 }
 
