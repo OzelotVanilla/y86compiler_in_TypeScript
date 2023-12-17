@@ -1,5 +1,5 @@
 import { Token } from "../tokeniser/Tokeniser"
-import { OperandNode } from "./OperandNode"
+import { CanBeLabelNode, OperandNode } from "./OperandNode"
 
 export abstract class StmtNode
 {
@@ -11,6 +11,9 @@ export abstract class StmtNode
     /** The column index of the statement starting, exactly same with index. */
     public readonly pos_col
     public get length(): number { throw ReferenceError(`Should not call this on abstract class.`) }
+
+    /** Will be init later in code generation phase. */
+    public memory_location: bigint = -1n
 
     constructor({ label, pos_col, pos_row }: StmtNode_Param)
     {
@@ -36,7 +39,7 @@ type StmtNode_SuperConstructor_Param =
 export class LabelOnlyStmt extends StmtNode
 {
     private stored__length
-    public get length() { return this.stored__length }
+    public override get length() { return this.stored__length }
 
     constructor({ label, pos_col, pos_row, length }: LabelStmt_Param) 
     {
@@ -56,7 +59,9 @@ export class DirectiveStmt extends StmtNode
     public readonly param
     public readonly tokens
 
-    public get length() { return this.directive.length + (this.param?.length ?? 0) }
+    public override get length() { return this.directive.length + (this.param?.length ?? 0) }
+
+    public getParam() { return this.param != undefined ? [this.param] : [] }
 
     constructor({ directive, param, label = null, pos_col, pos_row, tokens }: DirectiveStmt_Param) 
     {
@@ -92,6 +97,12 @@ export abstract class OperationStmt extends StmtNode
         )
     }
 
+    /** Return the `(operand_node, label_name)[]`. */
+    public abstract getOperandOfLabel(): (readonly [CanBeLabelNode, string])[]
+
+    /** Return `operand[]`. */
+    public abstract getOperands(): OperandNode[]
+
     constructor({ label = null, operator, pos_col, pos_row, tokens = [] }: OperationStmt_Param) 
     {
         super({ label, pos_col, pos_row })
@@ -107,7 +118,7 @@ type OperationStmt_Param = StmtNode_SuperConstructor_Param & {
 
 export class NullaryOpratorStmt extends OperationStmt
 {
-    public get length(): number
+    public override get length(): number
     {
         // Not precise length getting.
         if (this.tokens.length == 0)
@@ -117,6 +128,10 @@ export class NullaryOpratorStmt extends OperationStmt
         }
         else { return this.getLengthByTokens() }
     }
+
+    public override getOperandOfLabel() { return [] }
+
+    public override getOperands() { return [] }
 
     constructor({ label, operator, pos_col, pos_row, tokens }: NullaryOpratorStmt_Param)
     {
@@ -130,7 +145,7 @@ export class UnaryOpratorStmt extends OperationStmt
 {
     public readonly first_param
 
-    public get length(): number
+    public override get length(): number
     {
         if (this.tokens.length == 0)
         {
@@ -139,6 +154,19 @@ export class UnaryOpratorStmt extends OperationStmt
         }
         else { return this.getLengthByTokens() }
     }
+
+    public override getOperandOfLabel()
+    {
+        let result = []
+        if (this.first_param instanceof CanBeLabelNode)
+        {
+            const label = this.first_param.getLabel()
+            if (label != null) { result.push([this.first_param, label] as const) }
+        }
+        return result
+    }
+
+    public override getOperands() { return [this.first_param] }
 
     constructor({ label, operator, first_param, pos_col, pos_row, tokens }: UnaryOpratorStmt_Param)
     {
@@ -156,7 +184,7 @@ export class BinaryOpratorStmt extends OperationStmt
     public readonly first_param
     public readonly second_param
 
-    public get length(): number
+    public override get length(): number
     {
         if (this.tokens.length == 0)
         {
@@ -166,6 +194,24 @@ export class BinaryOpratorStmt extends OperationStmt
         }
         else { return this.getLengthByTokens() }
     }
+
+    public override getOperandOfLabel()
+    {
+        let result = []
+        if (this.first_param instanceof CanBeLabelNode)
+        {
+            const label = this.first_param.getLabel()
+            if (label != null) { result.push([this.first_param, label] as const) }
+        }
+        if (this.second_param instanceof CanBeLabelNode)
+        {
+            const label = this.second_param.getLabel()
+            if (label != null) { result.push([this.second_param, label] as const) }
+        }
+        return result
+    }
+
+    public override getOperands() { return [this.first_param, this.second_param] }
 
     constructor({ label, operator, first_param, second_param, pos_col, pos_row, tokens }: BinaryOpratorStmt_Param)
     {

@@ -2,6 +2,9 @@ import { Token } from "../tokeniser/Tokeniser"
 
 export abstract class OperandNode
 {
+    private static id_counter = 0
+    public readonly node_id
+
     /** The row index of the statement starting, exactly same with index. */
     public readonly pos_row
     /** The coloum index of the statement starting, exactly same with index. */
@@ -11,6 +14,7 @@ export abstract class OperandNode
 
     constructor({ pos_row, pos_col }: OperandNode_Param)
     {
+        this.node_id = OperandNode.id_counter++
         this.pos_row = pos_row
         this.pos_col = pos_col
     }
@@ -26,6 +30,12 @@ export abstract class CanBeLabelNode extends OperandNode
     public readonly label
 
     public get length(): number { throw ReferenceError(`Should not call this on abstract class.`) }
+
+    /** Try to get the label if this operand is using label as its content. */
+    public abstract getLabel(): string | null
+
+    public set location(value: bigint) { throw ReferenceError(`Should not call this on abstract class.`) }
+    public get location() { throw ReferenceError(`Should not call this on abstract class.`) }
 
     constructor({ label, pos_row, pos_col }: CanWithLabelNode_Param)
     {
@@ -127,12 +137,12 @@ type IntConstantNode_Param = OperandNode_Param & {
 export class DestinationNode extends CanBeLabelNode
 {
     private value: bigint = -1n
-    public get location()
+    public override get location()
     {
         if (!this.isInited()) { throw RangeError(`Not initialised destination node.`) }
         return this.value
     }
-    public set location(value: bigint) { this.value = value }
+    public override set location(value: bigint) { this.value = value }
 
     private stored__original_text: string
     public get original_text() { return this.stored__original_text }
@@ -145,6 +155,8 @@ export class DestinationNode extends CanBeLabelNode
     }
 
     public get length() { return this.original_text.length }
+
+    public override getLabel() { return this.isInited() ? null : this.original_text }
 
     constructor({ label, from_text, pos_row, pos_col }: DestinationNode_Param)
     {
