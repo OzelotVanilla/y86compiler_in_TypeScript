@@ -83,7 +83,7 @@ export class Analyser
                     case TokenType.directive:
                         return Analyser.readDirectiveStmt(tokens, prev_index + 2)
                     case TokenType.new_line:
-                        return Result.createOk(tokens.slice(0, 2))
+                        return Result.createOk(tokens.slice(prev_index + 0, prev_index + 2))
 
                     default:
                         return Result.createErr({
