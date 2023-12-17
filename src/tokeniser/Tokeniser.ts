@@ -43,7 +43,7 @@ export class Tokeniser
         return [...this.stored__tokens]
     }
 
-    public parse(source_text: string): Result<TokeniseSuccessResult, TokeniseFailResult>
+    public parse(source_text: string): Result<TokeniseSuccessResult, ParseFailResult>
     {
         this.stored__status = ParseStatus.pending
         let result = getTokenFromCode(source_text)
@@ -154,7 +154,7 @@ export class Tokeniser
 
 export type Tokeniser_Args = {}
 
-export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseSuccessResult, TokeniseFailResult>
+export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<TokeniseSuccessResult, ParseFailResult>
 {
     /** Index for `getTokenFromCode` to get the `char_start`. */
     let index = 0
@@ -166,7 +166,7 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
     let stat__start_time = Date.now()
 
     /** Inside function which add a number to token list (and move every index forward), or return an error. */
-    function processOnNumber(): Result<string, TokeniseFailResult>
+    function processOnNumber(): Result<string, ParseFailResult>
     {
         const content_got = Tokeniser.readNumberGreedly(text, index)
         if (Tokeniser.valid_number_checker.test(content_got)) // Got a valid number.
@@ -299,7 +299,9 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
 
     let stat__end_time = Date.now()
 
-    return Result.createOk({ tokens: tokens_parsed, time_consumed: (stat__end_time - stat__start_time) / 1000 })
+    return Result.createOk({
+        tokens: tokens_parsed, source_code: text, time_consumed: (stat__end_time - stat__start_time)
+    })
 }
 
 export function getTokensDisplay(tokens: Token[] | null | undefined, use_colour: boolean = false)
@@ -367,8 +369,8 @@ export enum ParseStatus
 export type TokeniseSuccessResult = {
     /** Parsed token. */
     tokens: Token[]
-    /** Consumed time for tokenising (in seconds). */
+    /** The inputted source code */
+    source_code: string
+    /** Consumed time for tokenising (in milliseconds). */
     time_consumed: number
 }
-
-export type TokeniseFailResult = ParseFailResult & {}

@@ -1,4 +1,4 @@
-import { Tokeniser, TokeniseFailResult } from "../src/tokeniser/Tokeniser"
+import { Tokeniser } from "../src/tokeniser/Tokeniser"
 
 test(
     "Check `Tokeniser.readLetterGreedly` correctness of text read",

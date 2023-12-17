@@ -1,35 +1,56 @@
+import { Token } from "../tokeniser/Tokeniser"
+
 export abstract class OperandNode
 {
+    /** The row index of the statement starting, exactly same with index. */
+    public readonly pos_row
+    /** The coloum index of the statement starting, exactly same with index. */
+    public readonly pos_col
 
+    public get length(): number { throw ReferenceError(`Should not call this on abstract class.`) }
+
+    constructor({ pos_row, pos_col }: OperandNode_Param)
+    {
+        this.pos_row = pos_row
+        this.pos_col = pos_col
+    }
+}
+
+type OperandNode_Param = {
+    pos_row: number
+    pos_col: number
 }
 
 export abstract class CanBeLabelNode extends OperandNode
 {
     public readonly label
 
-    constructor({ label }: CanWithLabelNode_Param)
+    public get length(): number { throw ReferenceError(`Should not call this on abstract class.`) }
+
+    constructor({ label, pos_row, pos_col }: CanWithLabelNode_Param)
     {
-        super()
+        super({ pos_row, pos_col })
         this.label = label
     }
 }
 
-type CanWithLabelNode_Param = {
+type CanWithLabelNode_Param = OperandNode_Param & {
     label?: string
 }
 
 export class RegisterNode extends OperandNode
 {
     public readonly name
+    public get length() { return this.name.length }
 
-    constructor({ name }: RegisterNode_Param)
+    constructor({ name, pos_row, pos_col }: RegisterNode_Param)
     {
-        super()
+        super({ pos_row, pos_col })
         this.name = name
     }
 }
 
-type RegisterNode_Param = {
+type RegisterNode_Param = OperandNode_Param & {
     name: string
 }
 
@@ -41,34 +62,63 @@ export class AddressNode extends OperandNode
 {
     public readonly base_register
     public readonly offset
+    private readonly tokens
 
-    constructor({ base_register, offset = 0 }: AddressNode_Param)
+    protected getLengthByTokens()
     {
-        super()
+        const last_token = this.tokens.at(-1)!
+        return last_token.position_col + last_token.content.length - this.tokens[0].position_col
+    }
+
+    public get length()
+    {
+        if (this.tokens.length == 0)
+        {
+            console.warn(
+                `Getting length from a \`AddressNode\` ("${this.offset}(${this.base_register})" here)`
+                + `that is not created from tokens, might result in length that is not precise.`
+                + `The whitespace and number representation might influence the result.`
+            )
+            return this.offset.toString().length + 2 + this.base_register.length
+        }
+        else
+        {
+            return this.getLengthByTokens()
+        }
+    }
+
+    constructor({ base_register, offset = 0, pos_row, pos_col, tokens = [] }: AddressNode_Param)
+    {
+        super({ pos_row, pos_col })
         this.base_register = base_register
         this.offset = offset
+        this.tokens = tokens
     }
 }
 
-type AddressNode_Param = {
+type AddressNode_Param = OperandNode_Param & {
     base_register: string
     offset?: number
+    tokens?: Token[]
 }
 
 export class IntConstantNode extends OperandNode
 {
-    public readonly value
+    /** The `number` (which is `f64`) type in JS is sometimes not capable for `u64`, so `bigint` is needed. */
+    public readonly value: bigint
+    public readonly original_text: string
+    public get length() { return this.original_text.length }
 
-    constructor({ value }: IntConstantNode_Param)
+    constructor({ from_text, pos_row, pos_col }: IntConstantNode_Param)
     {
-        super()
-        this.value = value
+        super({ pos_row, pos_col })
+        this.value = BigInt(from_text)
+        this.original_text = from_text
     }
 }
 
-type IntConstantNode_Param = {
-    /** The `number` (which is `f64`) type in JS is sometimes not capable for `u64`, so `bigint` is needed. */
-    value: bigint
+type IntConstantNode_Param = OperandNode_Param & {
+    from_text: string
 }
 
 /**
@@ -77,22 +127,38 @@ type IntConstantNode_Param = {
 export class DestinationNode extends CanBeLabelNode
 {
     private value: bigint = -1n
-    public get location() { return this.value }
-    public setLocation(value: bigint) { this.value = value }
+    public get location()
+    {
+        if (!this.isInited()) { throw RangeError(`Not initialised destination node.`) }
+        return this.value
+    }
+    public set location(value: bigint) { this.value = value }
+
+    private stored__original_text: string
+    public get original_text() { return this.stored__original_text }
+    protected set original_text(value: string) { this.stored__original_text = value }
+
+    public isInited() { return this.value >= 0 }
     public toIntConstantNode()
     {
-        return new IntConstantNode({ value: this.location })
+        return new IntConstantNode({ from_text: this.original_text, pos_row: this.pos_row, pos_col: this.pos_col })
     }
 
-    constructor({ label, location }: DestinationNode_Param)
+    public get length() { return this.original_text.length }
+
+    constructor({ label, from_text, pos_row, pos_col }: DestinationNode_Param)
     {
-        super({ label })
-        if (location != undefined) { this.value = location }
+        super({ label, pos_row, pos_col })
+        this.stored__original_text = from_text
+        if (!Number.isNaN(parseInt(from_text)))
+        {
+            this.value = BigInt(from_text)
+        }
     }
 }
 
 type DestinationNode_Param = CanWithLabelNode_Param & {
-    location?: bigint
+    from_text: string
 }
 
 export enum OperandType

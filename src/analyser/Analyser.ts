@@ -1,5 +1,5 @@
 import { TokenType } from "../tokeniser/TokenType";
-import { Token, Tokeniser, getTokenFromCode } from "../tokeniser/Tokeniser";
+import { Token, TokeniseSuccessResult, Tokeniser, getTokenFromCode } from "../tokeniser/Tokeniser";
 import { isTwoArrayEqual } from "../util/Array";
 import { Result } from "../util/Result";
 import { ParseFailResult } from "../util/util_type";
@@ -244,11 +244,13 @@ export class Analyser
     public static getOperandNode(tokens: Token[]): Result<OperandNode, Fail_getOperandNode>
     {
         const first_token = tokens[0]
+        const pos_row = first_token.position_row
+        const pos_col = first_token.position_col
         switch (first_token.type)
         {
             // It is simply a register as operand.
             case TokenType.register:
-                return Result.createOk(new RegisterNode({ name: first_token.content }))
+                return Result.createOk(new RegisterNode({ name: first_token.content, pos_row, pos_col }))
 
             // It is simply a constant as operand.
             case TokenType.constant:
@@ -256,14 +258,13 @@ export class Analyser
                     first_token.content.slice(1) // Delete first `$` char.
                         .replace(/^0+(?=[^xb])/, "") // Delete leading zero to avoid being recognised as oct.
                 // Notice that natively, only bin, hex and dec is supported here.
-                const value = BigInt(value_in_text)
-                return Result.createOk(new IntConstantNode({ value }))
+                return Result.createOk(new IntConstantNode({ from_text: value_in_text, pos_row, pos_col }))
 
             // Might be a destination or with-offset memory location
             case TokenType.numeric:
                 if (tokens.length == 1)
                 {
-                    return Result.createOk(new DestinationNode({ location: BigInt(first_token.content) }))
+                    return Result.createOk(new DestinationNode({ from_text: first_token.content, pos_row, pos_col }))
                 }
                 else if (tokens[1].type == TokenType.left_paren
                     && tokens[2].type == TokenType.register
@@ -271,7 +272,8 @@ export class Analyser
                 {
                     return Result.createOk(new AddressNode({
                         base_register: tokens[2].content,
-                        offset: parseInt(first_token.content)
+                        offset: parseInt(first_token.content),
+                        pos_row, pos_col
                     }))
                 }
                 else
@@ -284,11 +286,13 @@ export class Analyser
 
             // That means it is a destination
             case TokenType.identifier:
-                return Result.createOk(new DestinationNode({ label: first_token.content }))
+                return Result.createOk(new DestinationNode({
+                    label: first_token.content, pos_row, pos_col, from_text: first_token.content
+                }))
 
             // That means it is a destination
             case TokenType.left_paren:
-                return Result.createOk(new AddressNode({ base_register: tokens[1].content }))
+                return Result.createOk(new AddressNode({ base_register: tokens[1].content, pos_row, pos_col }))
 
             // Should not be an operand
             default:
@@ -333,13 +337,19 @@ export class Analyser
 
         const label = is_possible_labeled ? tokens[0].content : null
         const operator = tokens[operator_index].content
-        const first_param = operands_nodes[0]
-        const second_param = operands_nodes[1]
+        const [first_param, second_param] = [operands_nodes[0], operands_nodes[1]]
+        const [pos_row, pos_col] = [tokens[0].position_row, tokens[0].position_col]
         switch (operands_nodes.length)
         {
-            case 0: return Result.createOk(new NullaryOpratorStmt({ label, operator }))
-            case 1: return Result.createOk(new UnaryOpratorStmt({ label, operator, first_param }))
-            case 2: return Result.createOk(new BinaryOpratorStmt({ label, operator, first_param, second_param }))
+            case 0: return Result.createOk(new NullaryOpratorStmt({
+                label, operator, pos_row, pos_col
+            }))
+            case 1: return Result.createOk(new UnaryOpratorStmt({
+                label, operator, first_param, pos_row, pos_col
+            }))
+            case 2: return Result.createOk(new BinaryOpratorStmt({
+                label, operator, first_param, second_param, pos_row, pos_col
+            }))
             default: return Result.createErr({
                 reason: `Too many operands (${operands_nodes.length}).`,
                 at_row: tokens[operator_index].position_row, at_col: tokens[operator_index].position_col
@@ -367,8 +377,9 @@ export class Analyser
         const param = param_got instanceof DestinationNode
             ? param_got.toIntConstantNode()
             : param_got
+        const [pos_row, pos_col] = [tokens[0].position_row, tokens[0].position_col]
 
-        return Result.createOk(new DirectiveStmt({ directive, param, label }))
+        return Result.createOk(new DirectiveStmt({ directive, param, label, pos_row, pos_col, tokens }))
     }
 
     public static getLabelOnlyStmt(
@@ -399,12 +410,18 @@ export class Analyser
         }
 
         const label = tokens[0].content
-        return Result.createOk(new LabelOnlyStmt({ label }))
+        const [pos_row, pos_col] = [tokens[0].position_row, tokens[0].position_col]
+        return Result.createOk(new LabelOnlyStmt({
+            label, pos_row, pos_col, length: tokens[1].position_col - pos_col
+        }))
     }
 }
 
 export function getASTFromTokens(tokens: Token[]): Result<AST, ParseFailResult>
+export function getASTFromTokens(tokenise_result: TokeniseSuccessResult): Result<AST, ParseFailResult>
+export function getASTFromTokens(param: Token[] | TokeniseSuccessResult): Result<AST, ParseFailResult>
 {
+    const tokens = param instanceof Array ? param : param.tokens
     let index = 0
     let stmt_nodes = [] as StmtNode[]
 
@@ -472,7 +489,8 @@ export function getASTFromTokens(tokens: Token[]): Result<AST, ParseFailResult>
         index += stmt_tokens.length
     }
 
-    return Result.createOk(new AST({ stmt_nodes }))
+    const source_code = param instanceof Array ? "# No code, generated from tokens" : param.source_code
+    return Result.createOk(new AST({ stmt_nodes, source_code }))
 }
 
 type Fail_readStmtWithOperand = ParseFailResult & {}
