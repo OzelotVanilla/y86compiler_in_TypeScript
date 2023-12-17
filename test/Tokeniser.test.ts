@@ -47,17 +47,17 @@ test(
         let parser_1 = new Tokeniser()
         let parser_1_result = parser_1.parse("addq %rax, %rbx\nsubq %rbx, %rcx\nhalt")
         expect(parser_1_result.unwarpOk().tokens).toEqual([
-            { type: 'operator', content: 'addq', position_col: 0, position_row: 0 },
-            { type: 'register', content: '%rax', position_col: 5, position_row: 0 },
-            { type: 'comma', content: ',', position_col: 8, position_row: 0 },
-            { type: 'register', content: '%rbx', position_col: 10, position_row: 0 },
-            { type: 'new_line', content: '\n', position_col: 13, position_row: 0 },
-            { type: 'operator', content: 'subq', position_col: 0, position_row: 1 },
-            { type: "register", content: "%rbx", position_col: 5, position_row: 1 },
-            { type: 'comma', content: ',', position_col: 8, position_row: 1 },
-            { type: 'register', content: '%rcx', position_col: 10, position_row: 1 },
-            { type: 'new_line', content: '\n', position_col: 13, position_row: 1 },
-            { type: 'operator', content: 'halt', position_col: 0, position_row: 2 }
+            { type: 'operator', content: 'addq', position_col: 1, position_row: 1 },
+            { type: 'register', content: '%rax', position_col: 6, position_row: 1 },
+            { type: 'comma', content: ',', position_col: 9, position_row: 1 },
+            { type: 'register', content: '%rbx', position_col: 11, position_row: 1 },
+            { type: 'new_line', content: '\n', position_col: 14, position_row: 1 },
+            { type: 'operator', content: 'subq', position_col: 1, position_row: 2 },
+            { type: "register", content: "%rbx", position_col: 6, position_row: 2 },
+            { type: 'comma', content: ',', position_col: 9, position_row: 2 },
+            { type: 'register', content: '%rcx', position_col: 11, position_row: 2 },
+            { type: 'new_line', content: '\n', position_col: 14, position_row: 2 },
+            { type: 'operator', content: 'halt', position_col: 1, position_row: 3 }
         ])
 
         let parser_2 = new Tokeniser()

@@ -159,9 +159,9 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
     /** Index for `getTokenFromCode` to get the `char_start`. */
     let index = 0
     /** Column possition at `char_start`. */
-    let pos_col = 0
+    let pos_col = 1
     /** Row possition at `char_start`. */
-    let pos_row = 0
+    let pos_row = 1
     let tokens_parsed: Token[] = []
     let stat__start_time = Date.now()
 
@@ -279,14 +279,14 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
             tokens_parsed.push({ type: TokenType.new_line, content, position_row: pos_row, position_col: pos_col })
             index += content.length
             pos_row++
-            pos_col = 0
+            pos_col = 1
         }
         // If it starts a comment, skip until end of the line.
         else if (char_start == "#")
         {
             while (!["\r", "\n"].includes(text[index])) { index++ }
             pos_row++
-            pos_col = 0
+            pos_col = 1
         }
         // Otherwise, something strange happens.
         else
