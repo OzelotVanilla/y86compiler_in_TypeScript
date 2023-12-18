@@ -31,14 +31,14 @@ export class Result<OkType, ErrType>
 
     public isErr(): boolean { return !this.whether_ok }
 
-    public unwarpOk(): OkType
+    public unwrapOk(): OkType
     {
         if (this.isErr()) { throw TypeError(`The result is Err.`) }
 
         return this.value as OkType
     }
 
-    public unwarpErr(): ErrType
+    public unwrapErr(): ErrType
     {
         if (this.isOk()) { throw TypeError(`The result is Ok.`) }
 

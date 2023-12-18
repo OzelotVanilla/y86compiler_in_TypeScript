@@ -44,7 +44,7 @@ export function getProofreadedAST(ast: AST): Result<AnnotatedAST, ProofreadError
             {
                 return Result.createErr({
                     error_type: ProofreadError_ErrorType.too_many_label_def,
-                    details: reg_result.unwarpErr()
+                    details: reg_result.unwrapErr()
                 })
             }
         }
@@ -91,7 +91,7 @@ export function getProofreadedAST(ast: AST): Result<AnnotatedAST, ProofreadError
     {
         return Result.createErr({
             error_type: ProofreadError_ErrorType.label_with_no_def,
-            details: label_def_check.unwarpErr()
+            details: label_def_check.unwrapErr()
         })
     }
 

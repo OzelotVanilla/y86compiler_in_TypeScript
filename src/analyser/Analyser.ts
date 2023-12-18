@@ -333,7 +333,7 @@ export class Analyser
                 return prev
             },
             [[]]
-        ).map(token_arr => Analyser.getOperandNode(token_arr).unwarpOk())
+        ).map(token_arr => Analyser.getOperandNode(token_arr).unwrapOk())
 
         const label = is_possible_labeled ? tokens[0].content : null
         const operator = tokens[operator_index].content
@@ -373,7 +373,7 @@ export class Analyser
 
         const label = is_possible_labeled ? tokens[0].content : null
         const directive = tokens[directive_index].content
-        const param_got = Analyser.getOperandNode(tokens.slice(directive_index + 1)).unwarpOk()
+        const param_got = Analyser.getOperandNode(tokens.slice(directive_index + 1)).unwrapOk()
         const param = param_got instanceof DestinationNode
             ? param_got.toIntConstantNode()
             : param_got
@@ -464,7 +464,7 @@ export function getASTFromTokens(param: Token[] | TokeniseSuccessResult): Result
                     throw TypeError(`Should not encounter statement starting with "${token_type}" now.`)
             }
         }
-        const stmt_tokens = tokens_read.unwarpOk()
+        const stmt_tokens = tokens_read.unwrapOk()
         const stmt_type = toStmtType(
             current_type == TokenType.identifier && stmt_tokens.length > 2
                 ? tokens[index + 2].type as Exclude<typeof current_type, TokenType.identifier>
@@ -484,7 +484,7 @@ export function getASTFromTokens(param: Token[] | TokeniseSuccessResult): Result
 
         if (get_stmt_result.isErr()) { return Result.fromErr(get_stmt_result) }
 
-        const stmt_node = get_stmt_result.unwarpOk()
+        const stmt_node = get_stmt_result.unwrapOk()
         stmt_nodes.push(stmt_node)
         index += stmt_tokens.length
     }

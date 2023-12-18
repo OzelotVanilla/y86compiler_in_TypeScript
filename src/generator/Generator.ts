@@ -224,7 +224,7 @@ export function generateCodeFromAnnotatedAST(
     // Then replace every label with actual memory location
     Generator.replaceLabelWithLocation(anot_ast)
 
-    let result = new Uint8Array(set_mem_loc_result.unwarpOk())
+    let result = new Uint8Array(set_mem_loc_result.unwrapOk())
     let index = 0
     for (const stmt of anot_ast.stmt_nodes)
     {

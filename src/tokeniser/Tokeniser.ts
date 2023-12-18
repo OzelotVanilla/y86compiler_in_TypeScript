@@ -50,7 +50,7 @@ export class Tokeniser
         if (result.isOk())
         {
             this.stored__status = ParseStatus.succeed
-            this.stored__tokens = result.unwarpOk().tokens
+            this.stored__tokens = result.unwrapOk().tokens
         }
         else
         {
@@ -223,7 +223,7 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
                 const read_number_result = processOnNumber()
                 if (read_number_result.isOk())
                 {
-                    const content = read_number_result.unwarpOk()
+                    const content = read_number_result.unwrapOk()
                     tokens_parsed.push({
                         type: TokenType.constant, content: `\$${content}`,
                         position_row: pos_row, position_col: pos_col
@@ -233,7 +233,7 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
                 }
                 else
                 {
-                    return Result.createErr(read_number_result.unwarpErr())
+                    return Result.createErr(read_number_result.unwrapErr())
                 }
             }
             else
@@ -249,7 +249,7 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
             const read_number_result = processOnNumber()
             if (read_number_result.isOk())
             {
-                const content = read_number_result.unwarpOk()
+                const content = read_number_result.unwrapOk()
                 tokens_parsed.push({
                     type: TokenType.numeric, content,
                     position_row: pos_row, position_col: pos_col
@@ -259,7 +259,7 @@ export function getTokenFromCode(text: string, args?: Tokeniser_Args): Result<To
             }
             else
             {
-                return Result.createErr(read_number_result.unwarpErr())
+                return Result.createErr(read_number_result.unwrapErr())
             }
         }
         // If it is a punctuation.
