@@ -1,8 +1,8 @@
 import { TokenType } from "../tokeniser/TokenType";
-import { Token, TokeniseSuccessResult, Tokeniser, getTokenFromCode } from "../tokeniser/Tokeniser";
+import { Token, TokeniseSuccessResult } from "../tokeniser/Tokeniser";
 import { isTwoArrayEqual } from "../util/Array";
 import { Result } from "../util/Result";
-import { ParseFailResult } from "../util/util_type";
+import { ComponentStatus, ParseFailResult } from "../util/util_type";
 import { AST } from "./AST";
 import { AddressNode, DestinationNode, IntConstantNode, OperandNode, OperandType, RegisterNode } from "./OperandNode";
 import { BinaryOpratorStmt, DirectiveStmt, LabelOnlyStmt, NullaryOpratorStmt, StmtNode, UnaryOpratorStmt } from "./StmtNode";
@@ -415,6 +415,16 @@ export class Analyser
             label, pos_row, pos_col, length: tokens[1].position_col - pos_col
         }))
     }
+
+    private args
+
+    private stored__status: ComponentStatus = ComponentStatus.no_task
+    public get status() { return this.stored__status }
+
+    constructor(args: Analyser_Args)
+    {
+        this.args = args
+    }
 }
 
 export function getASTFromTokens(tokens: Token[]): Result<AST, ParseFailResult>
@@ -498,6 +508,8 @@ type Fail_readStmtWithOperand = ParseFailResult & {}
 type Fail_getOperationStmt = ParseFailResult & {}
 
 type Fail_getOperandNode = ParseFailResult & {}
+
+type Analyser_Args = {}
 
 type getStmt_Config = {
     check_syntax?: boolean

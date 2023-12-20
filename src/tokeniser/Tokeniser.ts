@@ -1,6 +1,6 @@
 import { Generator } from "../generator/Generator";
 import { Result } from "../util/Result";
-import { ParseFailResult } from "../util/util_type";
+import { ParseFailResult, ComponentStatus } from "../util/util_type";
 import { TokenType } from "./TokenType";
 
 export class Tokeniser
@@ -29,13 +29,13 @@ export class Tokeniser
         this.args = args ?? {}
     }
 
-    private stored__status: ParseStatus = ParseStatus.no_task
+    private stored__status: ComponentStatus = ComponentStatus.no_task
     public get status() { return this.stored__status }
 
     private stored__tokens: Token[] | null = null
     public get tokens()
     {
-        if (this.status == ParseStatus.failed || this.stored__tokens == null)
+        if (this.status == ComponentStatus.failed || this.stored__tokens == null)
         {
             throw TypeError(`Cannot get tokens if the tokeniser failed to parse.`)
         }
@@ -45,23 +45,23 @@ export class Tokeniser
 
     public parse(source_text: string): Result<TokeniseSuccessResult, ParseFailResult>
     {
-        this.stored__status = ParseStatus.pending
+        this.stored__status = ComponentStatus.pending
         let result = getTokenFromCode(source_text)
         if (result.isOk())
         {
-            this.stored__status = ParseStatus.succeed
+            this.stored__status = ComponentStatus.succeed
             this.stored__tokens = result.unwrapOk().tokens
         }
         else
         {
-            this.stored__status = ParseStatus.failed
+            this.stored__status = ComponentStatus.failed
         }
         return result
     }
 
     public collectStringFormToken(use_colour: boolean = false): string
     {
-        if (this.status == ParseStatus.succeed)
+        if (this.status == ComponentStatus.succeed)
         {
             return getTokensDisplay(this.stored__tokens!, use_colour)
         }
@@ -356,14 +356,6 @@ export type Token = {
     content: string
     position_row: number
     position_col: number
-}
-
-export enum ParseStatus
-{
-    no_task = "no_task",
-    pending = "pending",
-    succeed = "succeed",
-    failed = "failed",
 }
 
 export type TokeniseSuccessResult = {

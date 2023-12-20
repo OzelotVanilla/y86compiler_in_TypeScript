@@ -6,3 +6,11 @@ export type ParseFailResult = {
     /** Column position for the error. */
     at_col: number
 }
+
+export enum ComponentStatus
+{
+    no_task = "no_task",
+    pending = "pending",
+    succeed = "succeed",
+    failed = "failed",
+}

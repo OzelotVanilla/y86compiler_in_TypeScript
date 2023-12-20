@@ -5,7 +5,7 @@ import { AnnotatedAST } from "../proofreader/AnnotatedAST"
 import { getProofreadedAST } from "../proofreader/Proofreader"
 import { getTokenFromCode } from "../tokeniser/Tokeniser"
 import { Result } from "../util/Result"
-import { ParseFailResult } from "../util/util_type"
+import { ComponentStatus, ParseFailResult } from "../util/util_type"
 
 const mapping_of_operator_to_bin = [
     ["halt", 0x00], ["nop", 0x10],
@@ -42,8 +42,6 @@ export class Generator
     public static readonly operation_mem_length = new Map<string, number>(operation_length_in_byte_64_bit_mode)
 
     public static readonly register_to_bin = new Map<string, number>(mapping_register_to_bin)
-
-    private args
 
     /**
      * @returns Total length of the program.
@@ -206,10 +204,20 @@ export class Generator
         return result.map(n => Number(n))
     }
 
+    private args
+
+    private stored__status: ComponentStatus = ComponentStatus.no_task
+    public get status() { return this.stored__status }
+
     constructor(args: Generator_Args)
     {
         this.args = args
         this.args.endian = this.args.endian ?? "little"
+    }
+
+    public generateFrom(anot_ast: AnnotatedAST)
+    {
+        return generateCodeFromAnnotatedAST(anot_ast)
     }
 }
 
