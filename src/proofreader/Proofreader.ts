@@ -112,7 +112,7 @@ enum ProofreadError_ErrorType
     label_with_no_def
 }
 
-type ProofreadError =
+export type ProofreadError =
     { error_type: ProofreadError_ErrorType.too_many_label_def, details: MultipleLabelDefError }
     | { error_type: ProofreadError_ErrorType.value_exceed_limit, details: NumberTooBigError }
     | { error_type: ProofreadError_ErrorType.label_with_no_def, details: LabelWithNoDefError }
