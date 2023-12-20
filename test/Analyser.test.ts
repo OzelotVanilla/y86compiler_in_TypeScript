@@ -14,8 +14,8 @@ test(
     function ()
     {
         const tokeniser = new Tokeniser()
-        const tokens = tokeniser.parse(test_program.trim()).unwarpOk().tokens
-        expect(Analyser.getOperandNode(tokens.slice(1, 2)).unwarpOk()).toBeInstanceOf(IntConstantNode)
+        const tokens = tokeniser.parse(test_program.trim()).unwrapOk().tokens
+        expect(Analyser.getOperandNode(tokens.slice(1, 2)).unwrapOk()).toBeInstanceOf(IntConstantNode)
     }
 )
 
@@ -24,7 +24,7 @@ test(
     function ()
     {
         expect(
-            Analyser.readOperationStmt(getTokenFromCode("addq %rax, %rbx").unwarpOk().tokens, 0)
+            Analyser.readOperationStmt(getTokenFromCode("addq %rax, %rbx").unwrapOk().tokens, 0)
                 .isOk()
         ).toBe(true)
 

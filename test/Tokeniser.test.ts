@@ -46,7 +46,7 @@ test(
     {
         let parser_1 = new Tokeniser()
         let parser_1_result = parser_1.parse("addq %rax, %rbx\nsubq %rbx, %rcx\nhalt")
-        expect(parser_1_result.unwarpOk().tokens).toEqual([
+        expect(parser_1_result.unwrapOk().tokens).toEqual([
             { type: 'operator', content: 'addq', position_col: 1, position_row: 1 },
             { type: 'register', content: '%rax', position_col: 6, position_row: 1 },
             { type: 'comma', content: ',', position_col: 9, position_row: 1 },
