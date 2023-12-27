@@ -9,7 +9,7 @@
         ],
         "declaration": true,
         "rootDir": "./src",
-        "outDir": "./es",
+        "outDir": "./dist",
         "strict": true,
         "allowJs": true,
         "esModuleInterop": true,

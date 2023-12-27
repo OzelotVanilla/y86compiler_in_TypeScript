@@ -5,11 +5,11 @@ const tsup_config: Options = {
     clean: true,
     dts: true,
     format: ["esm", "cjs"],
-    bundle: true,
+    bundle: false,
     skipNodeModulesBundle: true,
     target: 'esnext',
     outDir: 'dist',
-    entry: ['src/**/*.ts'],
+    entry: ['src/**/*.ts']
 };
 
 export default tsup_config
