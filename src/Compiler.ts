@@ -12,7 +12,7 @@ export class Compiler
 
     }
 
-    public compile(source_code: string): Result<Uint8Array, ParseFailResult | ProofreadError>
+    public compile(source_code: string)
     {
         return compileFromSourceCode(source_code)
     }
@@ -22,7 +22,7 @@ export type Compiler_Args = {
 
 }
 
-export function compileFromSourceCode(source_code: string)
+export function compileFromSourceCode(source_code: string): Result<Uint8Array, ParseFailResult | ProofreadError>
 {
     const tokenise_result = getTokenFromCode(source_code)
     if (tokenise_result.isErr()) { return Result.fromErr(tokenise_result) }
