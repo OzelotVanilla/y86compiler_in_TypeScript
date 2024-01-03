@@ -1,9 +1,10 @@
 {
     "name": "@pl_and_ts/y86compiler",
     "description": "Library for y86 ISA compiler",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": "Ozelot Vanilla",
     "license": "LGPL-3.0-only",
+    "keywords": [ "y86", "compiler" ],
     "files": [
         "dist",
         "license",
@@ -26,7 +27,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/OzelotVanilla/y86compiler_in_TypeScript.git"
+        "url": "git+https://github.com/OzelotVanilla/y86compiler_in_TypeScript.git"
     },
     "scripts": {
         "build": "tsup --config ./tsup.config.ts",
