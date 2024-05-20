@@ -1,8 +1,8 @@
 y86compiler_in_TypeScript
 ====
 
-A TypeScript-based compiler for Y86 assembly language,
-which could generate the machine code in the form of `Uint8Array`.
+A TypeScript-based Y86 assembly language's assembler, following a compiler-like structure.
+It could generate the machine code in the form of `Uint8Array`.
 
 Usage
 ----
